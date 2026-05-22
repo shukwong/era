@@ -10,7 +10,8 @@ The `search` function requires concrete implementations of two functions:
    solution, and generates a new (ideally improved) solution. An actual
    implementation should render a prompt out of the problem description and the
    past solution, feed it to an LLM, and parse the new solution from the LLM's
-   response.
+   response. The example `llm.py` supports `ERA_LLM_PROVIDER=codex` through the
+   local Codex CLI, and `ERA_LLM_PROVIDER=gemini` through the Gemini API.
 
 2. `execute_fn`: This function takes the problem definition and a candidate
    solution, and assigns a score to the solution in the context of the problem.

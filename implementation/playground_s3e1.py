@@ -13,17 +13,15 @@
 # limitations under the License.
 
 import os
-import sys
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error
-from typing import Any
 import json
 
 
 import futs
-from sandbox import Sandbox
-from llm import GeminiLLM
+from sandbox import ExecSandbox, Sandbox
+from llm import LLM, create_llm_from_env
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/playground-series-s3e1")
@@ -64,7 +62,7 @@ class PlaygroundProblem(futs.Problem):
     pass
 
 class PlaygroundGenerator:
-    def __init__(self, llm: GeminiLLM):
+    def __init__(self, llm: LLM):
         self.llm = llm
 
     def __call__(self, problem: futs.Problem, parent_solution: futs.Solution, parent_score: float) -> futs.Solution:
@@ -186,16 +184,16 @@ def wrapper(unused_arg):
             return float('-inf')
 
 def run_experiment(iterations=10):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("Set GEMINI_API_KEY")
+    try:
+        llm = create_llm_from_env()
+    except Exception as exc:
+        print(f"Failed to initialize LLM: {exc}")
         return
 
     # Prepare data first
     y_val = prepare_data()
 
-    llm = GeminiLLM(api_key)
-    sandbox = Sandbox(timeout_seconds=60) # Give it time to train
+    sandbox = ExecSandbox(timeout_seconds=60) # Give it time to train
     
     problem = PlaygroundProblem("Improve the regression model for the California Housing dataset.")
     
